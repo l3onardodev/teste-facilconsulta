@@ -14,7 +14,7 @@
 
             <span class="fs-3 py-3 mx-5" style="font-weight: 600">Recebemos a sua solicitação, {{ userName }}!</span>
 
-            <span class="fs-5 w-75 text-left text-fourth-page">Em breve entraremos em contato para conversarmos. Somos gratos por sua confiança em nosso serviço!</span>
+            <span class="fs-5 w-75 text-center text-fourth-page">Em breve entraremos em contato para conversarmos. Somos gratos por sua confiança em nosso serviço!</span>
 
             <img src="../assets/desktop-pagina-3.png" class="img-fluid my-4">
 
@@ -46,6 +46,7 @@ export default {
     @media screen and (max-width: 576px) {
         .text-fourth-page {
             width: 100% !important;
+            text-align: left !important;
         }
         .button-fourth-page {
             width: 100% !important;

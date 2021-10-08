@@ -17,7 +17,7 @@
 
               <!-- name input tags -->
               <label for="nameInput" class="form-label">Nome completo*</label>
-              <input type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameValidated}" v-model="$store.state.userData.name" @input="inputNameValidation">
+              <input type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameInputValidation}" v-model="$store.state.userData.name" @input="inputNameValidation">
 
               <!-- pt-br: showInputErrors se torna true quando o usuário clica em próximo. Dessa forma, os spans de erros não aparecem logo de cara. -->
               <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter mais que 3 caracteres.</div>
@@ -28,7 +28,7 @@
               <label for="cpfInput" class="form-label">CPF*</label>
 
               <input type="text" class="form-control form-control-sm w-75"
-              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfIsCorrect }" @keydown="acceptOnlyNumbersCpf($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
+              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfInputValidation }" @keydown="acceptOnlyNumbersCpf($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
               <!-- used keydown event above because I will force the input accept only numbers based on ASCII key's numbers -->
 
               <!-- Essa logica se perdura por boa parte dos inputs -->
@@ -120,10 +120,6 @@ export default {
   data() {
     return {
       showInputErrors: false,
-      nameValidated: false,
-      cpfValidated: false,
-      phoneNumberValidated: false,
-      birthDateValidated: false,
     }
   },
   methods: {
@@ -311,7 +307,7 @@ export default {
   },
   computed: {
     //computed properties que indicam se os inputs estão válidos ou não. E são nessas propriedades que as classes, que indicam se um input está correto ou não, se baseiam.
-    
+
     nameInputValidation() {
       if (this.$store.state.userData.name.length >= 3 && this.$store.state.userData.name.length <= 48) {
         return true;

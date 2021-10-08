@@ -41,8 +41,10 @@
                             <div class="form-price-container">
                                 <span class="fs-6" style="font-weight: 650;">R$</span>
                             </div>
-                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Valor" v-model="$store.state.userData.appointmentPrice" @keydown="acceptOnlyNumbersAppointmentPrice($event)" @focus="removeFormatationAppointmentPrice"
-                            @blur="transformAppointmentPriceInput">
+                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Valor" v-model="$store.state.userData.appointmentPrice" 
+                            @keydown="acceptOnlyNumbersAppointmentPrice($event)" @focus="removeFormatationAppointmentPrice"
+                            @blur="transformAppointmentPriceInput"
+                            v-bind:class="{ correctInput : appointmentPriceValidation }">
                         </div>
 
                         <div class="form-text" v-bind:class="[showInputErrors ? {hidden: appointmentPriceValidation} : {hidden: true}]">O preço da consulta deve custar entre R$30 e R$200.</div>
