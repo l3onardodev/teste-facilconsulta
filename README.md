@@ -23,6 +23,10 @@ VueJS, Vuex, Vue Router, Bootstrap 5, CSS, HTML
 ## Project setup
 
 ```
+git clone https://github.com/l3onardodev/teste-facilconsulta
+```
+
+```
 npm install
 ```
 
