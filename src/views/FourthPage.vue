@@ -1,4 +1,5 @@
 <template>
+<root>
   <!-- arrow-icon's container -->
     <div class="container-xl py-4">
         <router-link to="/confirm-data">
@@ -20,6 +21,7 @@
             <Button class="w-75 button-fourth-page" style="font-weight: 600" button-title="acesse nosso website">Voltar</Button>
         </div>
     </div>
+</root>
 </template>
 
 <script>
@@ -31,12 +33,8 @@ export default {
     components: {
         Button
     },
-    methods: {
-        changeButtonText() {
-            this.$refs.button.textContent = 'oi'
-        }
-    },
     computed: {
+        //retorna só o primeiro nome do usuário. (achei legal isso!)
         userName() {
             return this.$store.state.userData.name.split(' ')[0];
         }

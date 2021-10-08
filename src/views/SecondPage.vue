@@ -1,17 +1,18 @@
 <template>
-    <!-- arrow-icon's container -->
-    <div class="container-xl py-4">
-        <router-link to="/">
-            <img src="../assets/arrow.png" class="arrow-icon">
-        </router-link>
-    </div>
-
-    <!-- page content section -->
-    <div class="container-xl page__content py-5">
-        <div class="container-xl">
-            <div class="page__title fs-1 mx-5">Sobre o atendimento</div>
+<root>
+        <!-- arrow-icon's container -->
+        <div class="container-xl py-4">
+            <router-link to="/">
+                <img src="../assets/arrow.png" class="arrow-icon">
+            </router-link>
         </div>
-        <div class="container-xl d-flex">
+
+        <!-- page content section -->
+        <div class="container-xl page__content py-5">
+            <div class="container-xl">
+                <div class="page__title fs-1 mx-5">Sobre o atendimento</div>
+            </div>
+            <div class="container-xl d-flex">
 
             <!-- left side container -->
             <div class="d-flex flex-column w-100 content-mobile-container" style="margin-left: 3em;margin-right: 1em;">
@@ -95,6 +96,8 @@
                                         3x, sem juros
                                     </label>
                                 </div>
+
+                                <div class="form-text" v-bind:class="[showInputErrors ? {hidden: creditCardValidation} : {hidden: true}]">Você deve selecionar uma opção de parcelamento.</div>
                             </div>
                         </div>
                     </div>
@@ -118,6 +121,7 @@
             </div>
         </div>
     </div>
+</root>
     <!-- content's page container -->
 </template>
 
@@ -137,28 +141,26 @@ export default {
         }
     },
     methods: {
-        changePaymentSubdivisionState() {
-            //if paymentSubdivision it's true, return false. Otherwise, return true. (perhaps using ternary makes the code more complex than it really is);
-            this.$store.state.userData.paymentOptions.push('Cartao de Crédito')
-            return this.paymentSubdivision === true ? this.paymentSubdivision = false : this.paymentSubdivision = true; 
-        },
-
+        //transforma o preço que o usuário coloca. (ex: usuário digita 30, isso transforma para: 30,00);
         transformAppointmentPriceInput() {
             if (this.$store.state.userData.appointmentPrice.includes(',')) return
 
+            //sinceramente: isso foi gambiarra. Simulei floating points, que possuem vírgulas, adicionando zeros à uma string.
             this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice + ',' + '00';
         },
 
+        //checa se os inputs estão corretos para poder ir à próxima página.
         checkInputs() {
-            if (this.mainExpertiseValidation && this.appointmentPriceValidation) {
+            if (this.mainExpertiseValidation && this.appointmentPriceValidation &&  this.creditCardValidation) {
                 this.transformAppointmentPriceInput();
                 this.$router.push({ name: 'ThirdPage' });
             } else {
                 this.showInputErrors = true;
             }
         },
+
+        //funcao para que apenas números sejam aceitos.
         acceptOnlyNumbersAppointmentPrice(event) {
-        //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
 
         //if the the key's keycode is the value of a letter's keycode, returns false.
         if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
@@ -174,6 +176,7 @@ export default {
         return true;
         },
         
+        //remove a "gambiarra", isto é: remove os zeros da string e retorna somente os números que o usuário, de fato, digitou.
         removeFormatationAppointmentPrice() {
             if(this.$store.state.userData.appointmentPrice.includes(',')) {
                 this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice.slice(0, this.$store.state.userData.appointmentPrice.indexOf(','));
@@ -181,6 +184,7 @@ export default {
         }
     },
     computed: {
+        //computed properties que indicam se os inputs estão corretos ou não.
         mainExpertiseValidation() {
             if (this.$store.state.userData.mainExpertise != '') {
                 return true;
@@ -196,6 +200,18 @@ export default {
             } else {
                 console.log('false');
                 return false;
+            }
+        },
+
+        creditCardValidation() {
+            if(this.$store.state.userData.paymentOptions.find((element) => element === "Cartao de Credito")) {
+                if (this.$store.state.userData.creditCardOptions.length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
             }
         }
     }

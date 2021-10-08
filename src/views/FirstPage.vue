@@ -1,4 +1,5 @@
 <template>
+<root>
     <!-- home-icon's container -->
     <div class="container-xl py-4 d-flex justify-content-center">
         <router-link to="/">
@@ -13,23 +14,31 @@
         <div class="col px-5">
           <form>
             <div class="mb-2">
-              <label for="nameInput" class="form-label">Nome completo*</label>
-              <input type="text" class="form-control form-control-sm" id="nameInput" aria-describedby="emailHelp" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameValidated}" v-model="$store.state.userData.name" @input="inputNameValidation">
 
+              <!-- name input tags -->
+              <label for="nameInput" class="form-label">Nome completo*</label>
+              <input type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameValidated}" v-model="$store.state.userData.name" @input="inputNameValidation">
+
+              <!-- pt-br: showInputErrors se torna true quando o usuário clica em próximo. Dessa forma, os spans de erros não aparecem logo de cara. -->
               <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter mais que 3 caracteres.</div>
             </div>
 
+            <!-- cpf input tags -->
             <div class="mb-2">
               <label for="cpfInput" class="form-label">CPF*</label>
 
-              <input type="text" class="form-control form-control-sm w-75" id="cpfInput" aria-describedby="emailHelp" 
+              <input type="text" class="form-control form-control-sm w-75"
               placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfIsCorrect }" @keydown="acceptOnlyNumbersCpf($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
               <!-- used keydown event above because I will force the input accept only numbers based on ASCII key's numbers -->
 
+              <!-- Essa logica se perdura por boa parte dos inputs -->
               <div ref="cpfError" class="form-text" v-bind:class="[showInputErrors ? {hidden: cpfInputValidation} : {hidden: true}]">O cpf deve conter 11 números.</div>
             </div>
             
+            <!-- tag container que contém os inputs do phoneNumber e birthDate. Os criei para ajudar no mediaqueries. -->
             <div class="row phoneNumber-birthDate-inputs">
+              
+              <!-- phoneNumber input tags -->
               <div class="mb-2 col">
                 <label for="phoneNumberInput" class="form-label">Número de telefone*</label>
 
@@ -38,6 +47,7 @@
                 <div ref="phoneNumberError" class="form-text" v-bind:class="[showInputErrors ? {hidden: phoneNumberValidation} : {hidden: true}]">Seu número deve incluir 11 dígitos.</div>
               </div>
 
+              <!-- birthDate input tags -->
               <div class="mb-2 col">
                 <label for="birthDateInput" class="form-label">Data de nascimento*</label>
                 <input type="text" class="form-control form-control-sm" placeholder="Ex: 01012003" maxlength="8" v-model="$store.state.userData.birthDate" ref="birthDateInput" v-bind:class="{ correctInput : birthDateValidation }" @keydown="acceptOnlyNumbersBirthDate($event)" @focus="removeFormatationBirthDate" @blur="transformBirthDate">
@@ -46,23 +56,27 @@
               </div>
             </div>
 
-            <!-- select input's section-->
+            <!-- state and city's inputs container-->
             <div class="row">
-              <div class="mb-2 col">
-                <label for="phoneNumberInput" class="form-label">Estado*</label>
 
-                <select class="form-select form-select-sm" v-model="$store.state.userData.state">
+              <!-- state input tags -->
+              <div class="mb-2 col">
+                <label for="stateInput" class="form-label">Estado*</label>
+
+                <select class="form-select form-select-sm" v-model="$store.state.userData.state" id="stateInput">
                   <option>Paraná</option>
                   <option>Rio Grande do Sul</option>
                   <option>Santa Catarina</option>
                 </select>
+
                 <div class="form-text text-danger" v-bind:class="[showInputErrors ? {hidden: stateInputValidation} : {hidden: true}]">Você deve escolhar uma opção de estado.</div>
               </div>
 
+              <!-- city input tags -->
               <div class="mb-2 col">
-                <label for="phoneNumberInput" class="form-label">Cidade*</label>
+                <label for="citiesInput" class="form-label">Cidade*</label>
 
-                <select class="form-select form-select-sm" v-model="$store.state.userData.city">
+                <select class="form-select form-select-sm" v-model="$store.state.userData.city" id="citiesInput">
                   <option v-for="city in showCities()" v-bind:key="city"> {{ city }}</option>
                 </select>
 
@@ -70,9 +84,11 @@
               </div>
             </div>
           </form>
-          <!-- -->
+
+          <!-- page's status bar-->
           <div class="d-flex flex-row align-items-center">
             <div class="w-75 page-status d-flex flex-column">
+              <!-- duas classes que se sobrepoem, sendo uma contendo a cor que indica o "status" da pagina (1/2 ou 2/2) e uma quase branca, servindo de background. -->
               <div class="back-status"> </div>
               <div class="front-status"> </div>
             </div>
@@ -89,11 +105,10 @@
         </div>
       </div>
     </div>
+</root>
 </template>
 
 <script>
-// @ is an alias to /src
-// import GeneralStructure from '../components/GeneralStructure.vue';
 
 import Button from '../components/Button.vue';
 
@@ -112,7 +127,7 @@ export default {
     }
   },
   methods: {
-    //input name data verification.
+    //métodos para formatar os inputs do usuário.
     transformNameData() {
       const name = this.$store.state.userData.name.split(' ').map((element) => {
         const firstLetter = element.slice(0, 1).toUpperCase();
@@ -175,7 +190,9 @@ export default {
       this.$store.state.userData.birthDate = birthDateFormatted;
     },
 
-    //input cpf data 
+    //funcao para que apenas números sejam aceitos.
+    
+    //tentei pensar em criar apenas uma função, que funcionasse para todos os inputs que eu quisesse. Porém, não consegui pensar em uma solução decente. Por isso, criei um método para cada input.
 
     acceptOnlyNumbersCpf(event) {
       //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
@@ -195,7 +212,6 @@ export default {
     },
 
     acceptOnlyNumbersPhoneNumber(event) {
-      //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
 
       //if the the key's keycode is the value of a letter's keycode, returns false.
       if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
@@ -212,7 +228,6 @@ export default {
     },
 
     acceptOnlyNumbersBirthDate(event) {
-      //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
 
       //if the the key's keycode is the value of a letter's keycode, returns false.
       if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
@@ -228,6 +243,7 @@ export default {
       return true;
     },
 
+    //método para mostrar cidades de acordo ao estado escolhido.
     showCities() {
       if (this.$store.state.userData.state === 'Paraná') {
         console.log('parana');
@@ -252,6 +268,10 @@ export default {
         this.showInputErrors = true;
       }
     },
+
+    //inputs para remover formatação dos dados. (fiz isso para que quando os usuários fossem editar os dados, não surgisse muitos bugs. Além de manter um padrão semelhante ao de quando eles escreveram os dados pela primeira vez.)
+
+    //again: criei um método para cada input. (generalizar isso seria incrívellll)
 
     removeFormatationCpf() {
       if (this.$store.state.userData.cpf.includes('.')) {
@@ -290,6 +310,8 @@ export default {
     }
   },
   computed: {
+    //computed properties que indicam se os inputs estão válidos ou não. E são nessas propriedades que as classes, que indicam se um input está correto ou não, se baseiam.
+    
     nameInputValidation() {
       if (this.$store.state.userData.name.length >= 3 && this.$store.state.userData.name.length <= 48) {
         return true;

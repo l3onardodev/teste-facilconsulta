@@ -1,4 +1,5 @@
 <template>
+<root>
     <!-- arrow-icon's container -->
     <div class="container-xl py-4">
         <router-link to="/appointment-details">
@@ -47,12 +48,16 @@
 
                 <div class="d-flex flex-column">
                     <span style="font-weight: 600;" class="py-2">Formas de pagamento da consulta</span>
-
+                    
+                    <!-- itera todos os modos de pagamento escolhidos pelo usuário e cria um span para cada item. -->
                     <span v-for="paymentOption in $store.state.userData.paymentOptions" :key="paymentOption"> {{ paymentOption }}</span>
 
-                    <span style="font-weight: 600;" class="py-2">Números de parcelas aceitas no cartão de crédito:</span>
+                    <!-- criei isso pois não consegui criar o que foi proposto na imagem do challenge. Minha ideia era criar um objeto e as "prestações" serem properties de um array. Ou, talvez, criar um array de arrays (essa foi minha primeira ideia). De qualquer forma, nao consegui implementar nenhuma das duas. :( -->
+                    
+                    <!-- os dois "spans" abaixo aparecem se a opção "cartão de crédito" fora escolhida e alguma opção de parcelamento também fora escolhida.-->
+                    <span style="font-weight: 600;" class="py-2" v-if="$store.state.userData.creditCardOptions.length > 0 && $store.state.userData.paymentOptions.find((element) => element === 'Cartao de Credito')">Números de parcelas aceitas no cartão de crédito:</span>
 
-                    <span>{{ $store.state.userData.creditCardOptions }}</span>
+                    <span v-if="$store.state.userData.creditCardOptions.length > 0 && $store.state.userData.paymentOptions.find((element) => element === 'Cartao de Credito')">{{ $store.state.userData.creditCardOptions }}</span>
                 </div>
 
                 <!-- confirm button -->
@@ -65,6 +70,7 @@
             </div>
         </div>
     </div>
+</root>
 </template>
 
 <script>
