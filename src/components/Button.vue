@@ -1,9 +1,10 @@
 <template>
-    <button class="btn btn-primary btn-block text-uppercase my-3">proximo</button>
+    <button class="btn btn-primary btn-block text-uppercase my-3">{{ buttonTitle }}</button>
 </template>
 
 <script>
 export default {
+    props: ['buttonTitle'],
     name: 'Button'
 }
 </script>

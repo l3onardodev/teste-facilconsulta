@@ -9,6 +9,10 @@ export default createStore({
             birthDate: "",
             state: "",
             city: "",
+            mainExpertise: "",
+            appointmentPrice: "",
+            paymentOptions: [],
+            creditCardOptions: [],
         },
     },
 });

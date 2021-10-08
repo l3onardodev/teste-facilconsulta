@@ -14,80 +14,84 @@
         <div class="container-xl d-flex">
 
             <!-- left side container -->
-            <div class="d-flex flex-column w-100" style="margin-left: 3em;margin-right: 1em;">
+            <div class="d-flex flex-column w-100 content-mobile-container" style="margin-left: 3em;margin-right: 1em;">
                 <span class="fs-3 my-4" style="font-weight: 600;">Detalhes do atendimento</span>
 
                 <form>
                     <div class="mb-2 col">
                         <label for="phoneNumberInput" class="form-label">Especialidade principal*</label>
-                        <select class="form-select form-select-sm">
+                        <select class="form-select form-select-sm" v-model="$store.state.userData.mainExpertise">
                         <option selected disabled>Selecione</option>
-                        <option value="cardiologia">Cardiologia</option>
-                        <option value="dermatologia">Dermatologia</option>
-                        <option value="neurologia">Neurologia</option>
-                        <option value="oftalmologia">Oftalmologia</option>
-                        <option value="psiquiatria">Psiquiatria</option>
-                        <option value="urologia">Urologia</option>
+                        <option value="Cardiologia">Cardiologia</option>
+                        <option value="Dermatologia">Dermatologia</option>
+                        <option value="Neurologia">Neurologia</option>
+                        <option value="Oftalmologia">Oftalmologia</option>
+                        <option value="Psiquiatria">Psiquiatria</option>
+                        <option value="Urologia">Urologia</option>
                         </select>
-                        <div class="form-text text-danger">error</div>
+
+                        <div class="form-text text-danger" v-bind:class="[showInputErrors ? {hidden: mainExpertiseValidation} : {hidden: true}]">Você deve escolher uma opção de especialidade principal.</div>
                     </div>
 
                     <div class="mb-2 col">
                         <label class="form-label">Informe o preço da consulta*</label>
+
                         <div class="w-75 d-flex rounded" style="height: 34px;">
                             <div class="form-price-container">
                                 <span class="fs-6" style="font-weight: 650;">R$</span>
                             </div>
-                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Valor">
+                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Valor" v-model="$store.state.userData.appointmentPrice" @keydown="acceptOnlyNumbersAppointmentPrice($event)" @focus="removeFormatationAppointmentPrice"
+                            @blur="transformAppointmentPriceInput">
                         </div>
-                        <div ref="birthDateError" class="form-text">teste</div>
+
+                        <div class="form-text" v-bind:class="[showInputErrors ? {hidden: appointmentPriceValidation} : {hidden: true}]">O preço da consulta deve custar entre R$30 e R$200.</div>
                     </div>
                     <div class="mb-2 col">
                         <label class="form-label">Formas de pagamento de consulta*</label>
 
                         <div class="form-check payment-option py-3">
-                            <input class="form-check-input payment-option__input" type="checkbox" value="" id="money-option-form">
+                            <input class="form-check-input payment-option__input" type="checkbox" value="Em dinheiro" id="money-option-form" v-model="$store.state.userData.paymentOptions">
                             <label class="form-check-label payment-option__label" for="money-option-form">
                                 Em dinheiro
                             </label>
                         </div>
 
                         <div class="form-check payment-option py-3">
-                            <input class="form-check-input payment-option__input" type="checkbox" value="" id="pix-option-form">
+                            <input class="form-check-input payment-option__input" type="checkbox" value="Pix" id="pix-option-form" v-model="$store.state.userData.paymentOptions">
                             <label class="form-check-label payment-option__label" for="pix-option-form">
                                 Pix
                             </label>
                         </div>
                         <div class="form-check payment-option py-3">
-                            <input class="form-check-input payment-option__input" type="checkbox" value="" id="credit-card-option-form"
-                            v-on:click="changePaymentSubdivisionState"
-                            >
+
+                            <input class="form-check-input payment-option__input" type="checkbox" value="Cartao de Credito" id="credit-card-option-form"
+                            v-model="$store.state.userData.paymentOptions">
 
                             <label class="form-check-label payment-option__label" for="credit-card-option-form">
                                 Cartao de credito
                             </label>
 
                             <!-- second part of credit card's payment option -->
-                            <div class="d-flex flex-column px-5" v-if="paymentSubdivision">
+                            <div class="d-flex flex-column px-5" v-if="$store.state.userData.paymentOptions.find((element) => element === 'Cartao de Credito')">
                                 <label class="form-label">Parcelamento em</label>
 
                                 <div class="form-check w-100 py-2" style="border: none; box-shadow: none;">
-                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                    <label class="form-check-label" for="flexRadioDefault1">
+                                    <input class="form-check-input" type="radio" value="1x, sem juros" v-model="$store.state.userData.creditCardOptions">
+                                    <label class="form-check-label">
                                         1x, sem juros
                                     </label>
                                 </div>
 
                                 <div class="form-check w-100 py-2" style="border: none; box-shadow: none;">
-                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                    <label class="form-check-label" for="flexRadioDefault1">
+                                    <input class="form-check-input" type="radio" value="2x, sem juros" v-model="$store.state.userData.creditCardOptions">
+                                    <label class="form-check-label">
                                         2x, sem juros
                                     </label>
                                 </div>
 
                                 <div class="form-check w-100 py-2" style="border: none; box-shadow: none;">
-                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                    <label class="form-check-label" for="flexRadioDefault1">
+                                    <input class="form-check-input" type="radio" value="3x, sem juros" v-model="$store.state.userData.creditCardOptions">
+                                    <label class="form-check-label">
                                         3x, sem juros
                                     </label>
                                 </div>
@@ -97,16 +101,19 @@
                 </form>
                 <!-- -->
                 <div class="d-flex flex-row align-items-center">
-                    <div class="w-75 page-status"> </div>
+                    <div class="w-75 page-status d-flex flex-column">
+                    <div class="back-status"> </div>
+                    <div class="front-status" style="width: 100%"> </div>
+                    </div>
                     <div class="d-flex w-25 justify-content-center">
                     <span class="page-status__span">2 de 2</span>
                     </div>
                 </div>
 
                 <!-- confirm button -->
-                <router-link to="/confirm-data"><Button v-on:click="formValidation"></Button></router-link>
+                <Button v-on:click="checkInputs" class="w-100" button-title="próximo"></Button>
             </div>
-            <div class="image-container w-100 align-self-center">
+            <div class="image-container w-100 align-self-center page__image-container">
                 <img src="../assets/desktop-pagina-2.png" class="img-fluid">
             </div>
         </div>
@@ -125,13 +132,71 @@ export default {
     },
     data() {
         return {
-            paymentSubdivision: false
+            paymentSubdivision: false,
+            showInputErrors: false,
         }
     },
     methods: {
         changePaymentSubdivisionState() {
-            //if paymentSubdivision it's true, return false. Otherwise, return true. (perhaps using ternary makes the code more complex than it really is)
+            //if paymentSubdivision it's true, return false. Otherwise, return true. (perhaps using ternary makes the code more complex than it really is);
+            this.$store.state.userData.paymentOptions.push('Cartao de Crédito')
             return this.paymentSubdivision === true ? this.paymentSubdivision = false : this.paymentSubdivision = true; 
+        },
+
+        transformAppointmentPriceInput() {
+            if (this.$store.state.userData.appointmentPrice.includes(',')) return
+
+            this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice + ',' + '00';
+        },
+
+        checkInputs() {
+            if (this.mainExpertiseValidation && this.appointmentPriceValidation) {
+                this.transformAppointmentPriceInput();
+                this.$router.push({ name: 'ThirdPage' });
+            } else {
+                this.showInputErrors = true;
+            }
+        },
+        acceptOnlyNumbersAppointmentPrice(event) {
+        //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
+
+        //if the the key's keycode is the value of a letter's keycode, returns false.
+        if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
+                if (event.keyCode === 17 && (event.keyCode == 65 || event.keyCode == 97)) return;
+
+                setTimeout(() => {
+                    this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice.slice(0, -1);
+                }, 50);
+
+                return false;
+        }
+        //if its a number, returns true;
+        return true;
+        },
+        
+        removeFormatationAppointmentPrice() {
+            if(this.$store.state.userData.appointmentPrice.includes(',')) {
+                this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice.slice(0, this.$store.state.userData.appointmentPrice.indexOf(','));
+            }
+        }
+    },
+    computed: {
+        mainExpertiseValidation() {
+            if (this.$store.state.userData.mainExpertise != '') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        appointmentPriceValidation() {
+            const a = Number(this.$store.state.userData.appointmentPrice) || this.$store.state.userData.appointmentPrice.slice(0, this.$store.state.userData.appointmentPrice.indexOf(','));
+
+            if(a >= 30 && a <= 350) {
+                return true;
+            } else {
+                console.log('false');
+                return false;
+            }
         }
     }
 }
@@ -181,9 +246,9 @@ export default {
         font-weight: 600;
     }
 
-    .page-status::before {
+    .page-status::after {
       /* 22% it's the same as 100% of .page-status parent element. Using 22%, the width becomes responsive to screen's size. (I don't think this is the best way, though) */
-      width: 22%;
+      width: 320px;
     }
 
     .fade-enter-active, .fade-leave-active {
@@ -196,6 +261,13 @@ export default {
     @media screen and (min-width: 768px) {
         .container-xl {
             width: 850px;
+        }
+    }
+
+    @media screen and (max-width: 576px) {
+        .content-mobile-container {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
         }
     }
 </style>

@@ -16,33 +16,33 @@
               <label for="nameInput" class="form-label">Nome completo*</label>
               <input type="text" class="form-control form-control-sm" id="nameInput" aria-describedby="emailHelp" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameValidated}" v-model="$store.state.userData.name" @input="inputNameValidation">
 
-              <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameValidated} : {hidden: true}]">Seu nome deve conter mais que 3 caracteres.</div>
+              <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter mais que 3 caracteres.</div>
             </div>
 
             <div class="mb-2">
               <label for="cpfInput" class="form-label">CPF*</label>
 
               <input type="text" class="form-control form-control-sm w-75" id="cpfInput" aria-describedby="emailHelp" 
-              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfIsCorrect }" @keydown="acceptOnlyNumbersCpf($event)">
+              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfIsCorrect }" @keydown="acceptOnlyNumbersCpf($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
               <!-- used keydown event above because I will force the input accept only numbers based on ASCII key's numbers -->
 
-              <div ref="cpfError" class="form-text" v-bind:class="[showInputErrors ? {hidden: cpfValidated} : {hidden: true}]">O cpf deve conter 11 números.</div>
+              <div ref="cpfError" class="form-text" v-bind:class="[showInputErrors ? {hidden: cpfInputValidation} : {hidden: true}]">O cpf deve conter 11 números.</div>
             </div>
             
-            <div class="row">
+            <div class="row phoneNumber-birthDate-inputs">
               <div class="mb-2 col">
                 <label for="phoneNumberInput" class="form-label">Número de telefone*</label>
 
-                <input type="text" class="form-control form-control-sm" id="phoneNumberInput" placeholder="(00) 0 0000-0000" v-model="$store.state.userData.phoneNumber" maxlength="11" v-bind:class="{ correctInput : phoneNumberValidation }" @keydown="acceptOnlyNumbersPhoneNumber($event)">
+                <input type="text" class="form-control form-control-sm" id="phoneNumberInput" placeholder="(00) 0 0000-0000" v-model="$store.state.userData.phoneNumber" maxlength="11" v-bind:class="{ correctInput : phoneNumberValidation }" @keydown="acceptOnlyNumbersPhoneNumber($event)" @focus="removeFormatationPhoneNumber" @blur="transformPhoneNumberData">
 
-                <div ref="phoneNumberError" class="form-text" v-bind:class="[showInputErrors ? {hidden: phoneNumberValidated} : {hidden: true}]">error</div>
+                <div ref="phoneNumberError" class="form-text" v-bind:class="[showInputErrors ? {hidden: phoneNumberValidation} : {hidden: true}]">Seu número deve incluir 11 dígitos.</div>
               </div>
 
               <div class="mb-2 col">
                 <label for="birthDateInput" class="form-label">Data de nascimento*</label>
-                <input type="text" class="form-control form-control-sm" placeholder="01/01/2003" maxlength="8" v-model="$store.state.userData.birthDate" ref="birthDateInput" v-bind:class="{ correctInput : birthDateValidation }" @keydown="acceptOnlyNumbersBirthDate($event)">
+                <input type="text" class="form-control form-control-sm" placeholder="Ex: 01012003" maxlength="8" v-model="$store.state.userData.birthDate" ref="birthDateInput" v-bind:class="{ correctInput : birthDateValidation }" @keydown="acceptOnlyNumbersBirthDate($event)" @focus="removeFormatationBirthDate" @blur="transformBirthDate">
 
-                <div ref="birthDateError" class="form-text" v-bind:class="[showInputErrors ? {hidden: birthDateValidation} : {hidden: true}]">teste</div>
+                <div ref="birthDateError" class="form-text" v-bind:class="[showInputErrors ? {hidden: birthDateValidation} : {hidden: true}]">Sua data de nascimento deve conter 8 números.</div>
               </div>
             </div>
 
@@ -52,37 +52,39 @@
                 <label for="phoneNumberInput" class="form-label">Estado*</label>
 
                 <select class="form-select form-select-sm" v-model="$store.state.userData.state">
-                  <option selected disabled>Selecione</option>
                   <option>Paraná</option>
                   <option>Rio Grande do Sul</option>
                   <option>Santa Catarina</option>
                 </select>
-                <div class="form-text text-danger">error</div>
+                <div class="form-text text-danger" v-bind:class="[showInputErrors ? {hidden: stateInputValidation} : {hidden: true}]">Você deve escolhar uma opção de estado.</div>
               </div>
 
               <div class="mb-2 col">
                 <label for="phoneNumberInput" class="form-label">Cidade*</label>
 
-                <select class="form-select form-select-sm" aria-label="Default select example" v-bind="$store.state.userData.city">
-                  <option selected disabled>Selecione</option>
+                <select class="form-select form-select-sm" v-model="$store.state.userData.city">
                   <option v-for="city in showCities()" v-bind:key="city"> {{ city }}</option>
                 </select>
-                <div id="emailHelp" class="form-text">error</div>
+
+                <div class="form-text" v-bind:class="[showInputErrors ? {hidden: cityInputValidation} : {hidden: true}]">Você deve escolher uma opção de cidade.</div>
               </div>
             </div>
           </form>
           <!-- -->
           <div class="d-flex flex-row align-items-center">
-            <div class="w-75 page-status"> </div>
+            <div class="w-75 page-status d-flex flex-column">
+              <div class="back-status"> </div>
+              <div class="front-status"> </div>
+            </div>
             <div class="d-flex w-25 justify-content-center">
               <span class="page-status__span">1 de 2</span>
             </div>
           </div>
 
           <!-- confirm button -->
-          <router-link to="/pagina2"><Button></Button></router-link>
+          <Button class="w-100" @click="checkInputs" button-title="próximo"></Button>
         </div>
-        <div class="col">
+        <div class="col page__image-container">
           <img src="../assets/desktop-pagina-1.png" class="page__image-content" v-bind:title="rfefe">
         </div>
       </div>
@@ -110,15 +112,70 @@ export default {
     }
   },
   methods: {
-    inputNameValidation(event) {
-      if(event.target.value.length > 3 && event.target.value.length < 48) {
-        console.log('true');
-        this.nameValidated = true;
-      } else {
-        console.log('false');
-        this.nameValidated = false;
-      }
+    //input name data verification.
+    transformNameData() {
+      const name = this.$store.state.userData.name.split(' ').map((element) => {
+        const firstLetter = element.slice(0, 1).toUpperCase();
+
+        return firstLetter + element.slice(1);
+      }).join(' ')
+
+      this.$store.state.userData.name = name
     },
+
+    transformCpfData() {
+      //if there is already some holdover of modification in input, just returns.
+      if(this.$store.state.userData.cpf.includes('.')) return
+
+      const cpf = [...this.$store.state.userData.cpf].map((letter, index) => {
+        if(index === 2) {
+          return letter = letter + '.'
+        } else if (index === 5) {
+          return letter = letter + '.'
+        } else if (index === 8) {
+          return letter = letter + '-'
+        } else {
+          return letter;
+        }
+      }).join('')
+        this.$store.state.userData.cpf = cpf
+    },
+
+    transformPhoneNumberData() {
+      if(this.$store.state.userData.phoneNumber.includes('(')) return
+
+      const phoneNumber = [...this.$store.state.userData.phoneNumber].map((element, index) => {
+        if (index === 0) {
+          console.log('sou index 1');
+          return element = '(' + element;
+        } else if (index === 1) {
+          return element = element + ')';
+        } else if(index === 2) {
+          return element = ' ' + element + ' '
+        } else if (index === 6) {
+          return element = element + '-'
+        } else {
+          return element;
+        }
+      }).join('')
+
+      this.$store.state.userData.phoneNumber = phoneNumber
+    },
+
+    transformBirthDate() {
+      if(this.$store.state.userData.birthDate.includes('/')) return
+
+      const birthDateFormatted = [...this.$store.state.userData.birthDate].map((element, index) => {
+        if (index === 1 || index === 3){
+          return element = element + '/'
+        } else {
+          return element;
+        }
+      }).join('')
+      this.$store.state.userData.birthDate = birthDateFormatted;
+    },
+
+    //input cpf data 
 
     acceptOnlyNumbersCpf(event) {
       //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
@@ -181,10 +238,76 @@ export default {
         return ['Florianópolis', 'Joinville'];
       }
     },
+    
+    //check when button "next" is clicked. This verify if all fields are correctly filled.
+    checkInputs() {
+      if(this.nameInputValidation && this.cpfInputValidation && this.phoneNumberValidation && this.birthDateValidation && this.stateInputValidation && this.cityInputValidation) {
+
+        this.transformNameData();
+        this.transformCpfData();
+        this.transformPhoneNumberData();
+        this.transformBirthDate();
+        this.$router.push({ name: 'SecondPage' });
+      } else {
+        this.showInputErrors = true;
+      }
+    },
+
+    removeFormatationCpf() {
+      if (this.$store.state.userData.cpf.includes('.')) {
+        this.$store.state.userData.cpf = this.$store.state.userData.cpf.replaceAll('.', '');
+      }
+      if (this.$store.state.userData.cpf.includes('-')) {
+        this.$store.state.userData.cpf = this.$store.state.userData.cpf.replaceAll('-', '');
+      }
+
+      return;
+    },
+
+    removeFormatationPhoneNumber() {
+      if (this.$store.state.userData.phoneNumber.includes('(')) {
+        this.$store.state.userData.phoneNumber = this.$store.state.userData.phoneNumber.replaceAll('(', '');
+      }
+      if (this.$store.state.userData.phoneNumber.includes(')')) {
+        this.$store.state.userData.phoneNumber = this.$store.state.userData.phoneNumber.replaceAll(')', '');
+      }
+      if (this.$store.state.userData.phoneNumber.includes(' ')) {
+        this.$store.state.userData.phoneNumber = this.$store.state.userData.phoneNumber.replaceAll(' ', '');
+      }
+      if (this.$store.state.userData.phoneNumber.includes('-')) {
+        this.$store.state.userData.phoneNumber = this.$store.state.userData.phoneNumber.replaceAll('-', '');
+      }
+
+      return;
+    },
+
+    removeFormatationBirthDate() {
+      if (this.$store.state.userData.birthDate.includes('/')) {
+        this.$store.state.userData.birthDate = this.$store.state.userData.birthDate.replaceAll('/', '');
+      }
+
+      return;
+    }
   },
   computed: {
+    nameInputValidation() {
+      if (this.$store.state.userData.name.length >= 3 && this.$store.state.userData.name.length <= 48) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    cpfInputValidation() {
+      if (this.$store.state.userData.cpf.length === 11 || (this.$store.state.userData.cpf.length === 14 && this.$store.state.userData.cpf.includes('.'))) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
     phoneNumberValidation() {
-      if (this.$store.state.userData.phoneNumber === 11) {
+      if (this.$store.state.userData.phoneNumber.length === 11 || (this.$store.state.userData.phoneNumber.length === 16 && this.$store.state.userData.phoneNumber.includes('('))){
         return true;
       } else {
         return false;
@@ -192,7 +315,23 @@ export default {
     },
 
     birthDateValidation() {
-      if (this.$store.state.userData.birthDate === 11) {
+      if (this.$store.state.userData.birthDate.length === 8 || (this.$store.state.userData.birthDate.length === 10 && this.$store.state.userData.birthDate.includes('/'))) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    stateInputValidation() {
+      if (this.$store.state.userData.state != '') {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    cityInputValidation() {
+      if (this.$store.state.userData.city != '') {
         return true;
       } else {
         return false;
@@ -200,73 +339,6 @@ export default {
     }
   }
 }
-  // computed: {
-  //     //always verify when the "this.name" value changes, returning true or false depending of the conditions.
-  //     nameInputIsCorrect() {
-  //       if(this.name != '' && this.name.length >= 3 && this.name.length < 48) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     },
-
-  //     cpfIsCorrect() {
-  //       if (this.cpf.length === 11) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     },
-
-  //     phoneNumberIsCorrect: function() {
-  //       if (this.phoneNumber.length === 11) {
-  //         console.log('true');
-  //         return true
-  //       } else {
-  //         console.log('false');
-  //         return false;
-  //       }
-  //     }
-  // },
-  //everytime an input gets correct, (i.e: return true), the input value is formatted
-  // methods: {
-  //   formValidation(e) {
-  //       e.preventDefault();
-
-  //       if(!this.nameInputIsCorrect) {
-  //         this.inputErrors = true;
-  //         console.log(this.inputErrors);
-  //       }
-
-  //       // if(this.nameInputIsCorrect) {
-  //       //   if(this.errors.has(this.$refs.nameError.textContent = 'Seu nome deve conter entre 3 e 48 caracteres.')) {
-  //       //     this.errors.delete(this.$refs.nameError.textContent = 'Seu nome deve conter entre 3 e 48 caracteres.');
-  //       //   }
-  //       // } else {
-  //       //   this.errors.add(this.$refs.nameError.textContent = 'Seu nome deve conter entre 3 e 48 caracteres.');
-  //       // }
-
-  //       //validation of cpf input
-  //       // if (this.cpf === 11) {
-  //       //   console.log('numbers input correct');
-  //       //   console.log(this.errors);
-  //       //   console.log(this.errors.has(this.$refs.cpfError.textContent = 'O cpf deve conter 11 números.'))
-  //       // } else {
-  //       //   this.errors.add(this.$refs.cpfError.textContent = 'O cpf deve conter 11 números.');
-  //       // }
-
-  //       // if (this.errors.size > 0) {
-  //       //   this.errors.forEach((element) => {
-  //       //     console.log(element);
-  //       //     return element;
-  //       //   });
-  //       // } else {
-  //       //   console.log('proxima tela...')
-  //       // }
-  //     // }
-  //   }
-  // }
-// }
 </script>
 
 <style>
@@ -321,18 +393,21 @@ export default {
       color: #282828;
     }
 
-    .page-status {
+    .back-status {
+      margin: 1.5em 0;
       height: 20px;
       width: 100%;
+      transform: translateY(12px);
       background-color: #f9f9f9;
       border-radius: 5px;
     }
 
-    .page-status::after {
+    .front-status {
       content: '';
-      position: absolute;
+      position: relative;
       height: 20px;
-      width: 200px;
+      transform: translateY(-32px);
+      width: 50%;
       background-color: #483698;
       border-radius: 5px;
     }
@@ -371,9 +446,35 @@ export default {
       max-width: 50px;
     }
 
+    @media screen and (max-width: 576px) {
+      .container-xl {
+        padding: 0 1em;
+      }
+
+      .page__image-container {
+        display: none;
+      }
+      .mx-5 {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      .px-5 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .phoneNumber-birthDate-inputs {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .payment-option__input {
+        margin-right: 1.5em !important;
+      }
+    }
+
     @media screen and (min-width: 1400px) {
       .container-xl {
-        width: 1140px;
+        width: 900px;
       }
       .page1__content {
         width: 950px !important;

@@ -1,7 +1,7 @@
 <template>
   <!-- arrow-icon's container -->
     <div class="container-xl py-4">
-        <router-link to="/">
+        <router-link to="/confirm-data">
             <img src="../assets/arrow.png" class="arrow-icon">
         </router-link>
     </div>
@@ -13,11 +13,11 @@
 
             <span class="fs-3 py-3 mx-5" style="font-weight: 600">Recebemos a sua solicitação, {{ userName }}!</span>
 
-            <span class="fs-5 w-75 text-center">Em breve entraremos em contato para conversarmos. Somos gratos por sua confiança em nosso serviço!</span>
+            <span class="fs-5 w-75 text-left text-fourth-page">Em breve entraremos em contato para conversarmos. Somos gratos por sua confiança em nosso serviço!</span>
 
             <img src="../assets/desktop-pagina-3.png" class="img-fluid my-4">
 
-            <Button class="w-75">Voltar</Button>
+            <Button class="w-75 button-fourth-page" style="font-weight: 600" button-title="acesse nosso website">Voltar</Button>
         </div>
     </div>
 </template>
@@ -45,5 +45,12 @@ export default {
 </script>
 
 <style>
-
+    @media screen and (max-width: 576px) {
+        .text-fourth-page {
+            width: 100% !important;
+        }
+        .button-fourth-page {
+            width: 100% !important;
+        }
+    }
 </style>
