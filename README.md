@@ -18,12 +18,7 @@ A qualidade do código não atingira 10% do que eu gostaria, pois, por conta da 
 
 Tecnologias utilizadas no projeto:
 
-*VueJS
-*Vuex
-*Vue Router
-*Bootstrap 5
-*CSS
-*HTML
+VueJS, Vuex, Vue Router, Bootstrap 5, CSS, HTML
 
 ## Project setup
 
