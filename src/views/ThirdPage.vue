@@ -1,5 +1,5 @@
 <template>
-<root>
+<div>
     <!-- arrow-icon's container -->
     <div class="container-xl py-4">
         <router-link to="/appointment-details">
@@ -16,41 +16,41 @@
 
             <!-- left side container -->
             <div class="d-flex flex-column w-100 content-mobile-container" style="margin-left: 3em;margin-right: 1em;">
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">Nome completo</span>
-                    <span style="margin-bottom: .5em">{{ $store.state.userData.name }}</span>
+                    <span class="margin-bottom">{{ $store.state.userData.name }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">CPF</span>
-                    <span style="margin-bottom: .5em">{{ $store.state.userData.cpf }}</span>
+                    <span class="margin-bottom">{{ $store.state.userData.cpf }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">Número de celular ou telefone</span>
-                    <span style="margin-bottom: .5em">{{ $store.state.userData.phoneNumber }}</span>
+                    <span class="margin-bottom">{{ $store.state.userData.phoneNumber }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">Estado/Cidade</span>
-                    <span style="margin-bottom: .5em">{{ $store.state.userData.state }} - {{ $store.state.userData.city }}</span>
+                    <span class="margin-bottom">{{ $store.state.userData.state }} - {{ $store.state.userData.city }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">Especialidade principal</span>
-                    <span style="margin-bottom: .5em">{{ $store.state.userData.mainExpertise }}</span>
+                    <span class="margin-bottom">{{ $store.state.userData.mainExpertise }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column py-1">
                     <span style="font-weight: 600;" class="py-2">Preço da consulta</span>
-                    <span style="margin-bottom: .5em">R$ {{ $store.state.userData.appointmentPrice }}</span>
+                    <span class="margin-bottom">R$ {{ $store.state.userData.appointmentPrice }}</span>
                 </div>
 
-                <div class="d-flex flex-column">
-                    <span style="font-weight: 600;" class="py-2">Formas de pagamento da consulta</span>
+                <div class="d-flex flex-column py-1">
+                    <span style="font-weight: 600;" class="py-1">Formas de pagamento da consulta</span>
                     
                     <!-- itera todos os modos de pagamento escolhidos pelo usuário e cria um span para cada item. -->
-                    <span v-for="paymentOption in $store.state.userData.paymentOptions" :key="paymentOption"> {{ paymentOption }}</span>
+                    <span class="margin-bottom" v-for="paymentOption in $store.state.userData.paymentOptions" :key="paymentOption"> {{ paymentOption }}</span>
 
                     <!-- criei isso pois não consegui criar o que foi proposto na imagem do challenge. Minha ideia era criar um objeto e as "prestações" serem properties de um array. Ou, talvez, criar um array de arrays (essa foi minha primeira ideia). De qualquer forma, nao consegui implementar nenhuma das duas. :( -->
                     
@@ -70,7 +70,7 @@
             </div>
         </div>
     </div>
-</root>
+</div>
 </template>
 
 <script>
@@ -91,6 +91,9 @@ export default {
 </script>
 
 <style>
+    .margin-bottom {
+        margin-bottom: .5em;
+    }
     @media screen and (max-width: 576px) {
         .page__content-mobile {
             width: 100% !important;

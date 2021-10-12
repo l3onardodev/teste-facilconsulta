@@ -1,5 +1,5 @@
 <template>
-<root>
+<div>
   <!-- arrow-icon's container -->
     <div class="container-xl py-4">
         <router-link to="/confirm-data">
@@ -8,7 +8,7 @@
     </div>
 
     <!-- page content section -->
-    <div class="container-xl page__content py-5" style="height: 800px;">
+    <div class="container-xl page__content page4__content py-5">
         <div class="container-xl d-flex flex-column justify-content-center w-100 align-items-center">
             <span class="fs-1 page__title">Agradecemos o seu cadastro</span>
 
@@ -18,10 +18,10 @@
 
             <img src="../assets/desktop-pagina-3.png" class="img-fluid my-4">
 
-            <Button class="w-75 button-fourth-page" style="font-weight: 600" button-title="acesse nosso website">Voltar</Button>
+            <a href="https://facilconsulta.com.br/" class="w-75 button-fourth-page"><Button class="w-100" button-title="acesse nosso website">Voltar</Button></a>
         </div>
     </div>
-</root>
+</div>
 </template>
 
 <script>
@@ -43,10 +43,17 @@ export default {
 </script>
 
 <style>
+    .page4__content {
+        height: 800;
+    }
+
     @media screen and (max-width: 576px) {
         .text-fourth-page {
             width: 100% !important;
             text-align: left !important;
+        }
+        .page4__content {
+            height: 550;
         }
         .button-fourth-page {
             width: 100% !important;

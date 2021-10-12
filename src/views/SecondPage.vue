@@ -1,5 +1,5 @@
 <template>
-<root>
+<div>
         <!-- arrow-icon's container -->
         <div class="container-xl py-4">
             <router-link to="/">
@@ -20,8 +20,8 @@
 
                 <form>
                     <div class="mb-2 col">
-                        <label for="phoneNumberInput" class="form-label">Especialidade principal*</label>
-                        <select class="form-select form-select-sm" v-model="$store.state.userData.mainExpertise">
+                        <label for="phoneNumberInput" class="form-label form-label-second-page">Especialidade principal*</label>
+                        <select class="form-select form-select-sm" v-model="$store.state.userData.mainExpertise" v-bind:class="{ correctInput : mainExpertiseValidation }">
                         <option selected disabled>Selecione</option>
                         <option value="Cardiologia">Cardiologia</option>
                         <option value="Dermatologia">Dermatologia</option>
@@ -35,14 +35,14 @@
                     </div>
 
                     <div class="mb-2 col">
-                        <label class="form-label">Informe o preço da consulta*</label>
+                        <label class="form-label form-label-second-page">Informe o preço da consulta*</label>
 
                         <div class="w-75 d-flex rounded" style="height: 34px;">
                             <div class="form-price-container">
                                 <span class="fs-6" style="font-weight: 650;">R$</span>
                             </div>
-                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Valor" v-model="$store.state.userData.appointmentPrice" 
-                            @keydown="acceptOnlyNumbersAppointmentPrice($event)" @focus="removeFormatationAppointmentPrice"
+                            <input type="text" class="form-control form-control-sm rounded-0" placeholder="Ex: 100" v-model="$store.state.userData.appointmentPrice" 
+                            @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationAppointmentPrice"
                             @blur="transformAppointmentPriceInput"
                             v-bind:class="{ correctInput : appointmentPriceValidation }">
                         </div>
@@ -50,7 +50,7 @@
                         <div class="form-text" v-bind:class="[showInputErrors ? {hidden: appointmentPriceValidation} : {hidden: true}]">O preço da consulta deve custar entre R$30 e R$200.</div>
                     </div>
                     <div class="mb-2 col">
-                        <label class="form-label">Formas de pagamento de consulta*</label>
+                        <label class="form-label form-label-second-page">Formas de pagamento de consulta*</label>
 
                         <div class="form-check payment-option py-3">
                             <input class="form-check-input payment-option__input" type="checkbox" value="Em dinheiro" id="money-option-form" v-model="$store.state.userData.paymentOptions">
@@ -76,7 +76,7 @@
 
                             <!-- second part of credit card's payment option -->
                             <div class="d-flex flex-column px-5" v-if="$store.state.userData.paymentOptions.find((element) => element === 'Cartao de Credito')">
-                                <label class="form-label">Parcelamento em</label>
+                                <label class="form-label form-label-second-page">Parcelamento em</label>
 
                                 <div class="form-check w-100 py-2" style="border: none; box-shadow: none;">
                                     <input class="form-check-input" type="radio" value="1x, sem juros" v-model="$store.state.userData.creditCardOptions">
@@ -102,6 +102,8 @@
                                 <div class="form-text" v-bind:class="[showInputErrors ? {hidden: creditCardValidation} : {hidden: true}]">Você deve selecionar uma opção de parcelamento.</div>
                             </div>
                         </div>
+
+                        <div class="form-text" v-bind:class="[showInputErrors ? {hidden: paymentOptionsValidation} : {hidden: true}]">Você deve escolher ao menos uma opção de pagamento.</div>
                     </div>
                 </form>
                 <!-- -->
@@ -116,14 +118,14 @@
                 </div>
 
                 <!-- confirm button -->
-                <Button v-on:click="checkInputs" class="w-100" button-title="próximo"></Button>
+                <router-link to="/confirm-data"><Button v-on:click="checkInputs($event)" class="w-100" button-title="próximo"></Button></router-link>
             </div>
             <div class="image-container w-100 align-self-center page__image-container">
                 <img src="../assets/desktop-pagina-2.png" class="img-fluid">
             </div>
         </div>
     </div>
-</root>
+</div>
     <!-- content's page container -->
 </template>
 
@@ -145,37 +147,20 @@ export default {
     methods: {
         //transforma o preço que o usuário coloca. (ex: usuário digita 30, isso transforma para: 30,00);
         transformAppointmentPriceInput() {
-            if (this.$store.state.userData.appointmentPrice.includes(',')) return
+            if (this.$store.state.userData.appointmentPrice.includes(',') || this.$store.state.userData.appointmentPrice === '') return
 
             //sinceramente: isso foi gambiarra. Simulei floating points, que possuem vírgulas, adicionando zeros à uma string.
             this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice + ',' + '00';
         },
 
         //checa se os inputs estão corretos para poder ir à próxima página.
-        checkInputs() {
-            if (this.mainExpertiseValidation && this.appointmentPriceValidation &&  this.creditCardValidation) {
+        checkInputs(e) {
+            if (this.mainExpertiseValidation && this.appointmentPriceValidation &&  this.creditCardValidation && this.paymentOptionsValidation) {
                 this.transformAppointmentPriceInput();
-                this.$router.push({ name: 'ThirdPage' });
             } else {
                 this.showInputErrors = true;
+                e.preventDefault();
             }
-        },
-
-        //funcao para que apenas números sejam aceitos.
-        acceptOnlyNumbersAppointmentPrice(event) {
-
-        //if the the key's keycode is the value of a letter's keycode, returns false.
-        if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
-                if (event.keyCode === 17 && (event.keyCode == 65 || event.keyCode == 97)) return;
-
-                setTimeout(() => {
-                    this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice.slice(0, -1);
-                }, 50);
-
-                return false;
-        }
-        //if its a number, returns true;
-        return true;
         },
         
         //remove a "gambiarra", isto é: remove os zeros da string e retorna somente os números que o usuário, de fato, digitou.
@@ -183,7 +168,15 @@ export default {
             if(this.$store.state.userData.appointmentPrice.includes(',')) {
                 this.$store.state.userData.appointmentPrice = this.$store.state.userData.appointmentPrice.slice(0, this.$store.state.userData.appointmentPrice.indexOf(','));
             }
-        }
+        },
+
+        acceptOnlyNumbers(e) {
+            const charCode = (typeof e.which == "undefined") ? e.keyCode : e.which;
+            const charStr = String.fromCharCode(charCode);
+
+            if (!charStr.match(/^(0|[1-9][0-9]*|[a-i]|[`]|[\b])|[\t]$/))
+            e.preventDefault();
+        },
     },
     computed: {
         //computed properties que indicam se os inputs estão corretos ou não.
@@ -194,13 +187,20 @@ export default {
                 return false;
             }
         },
+        paymentOptionsValidation() {
+            if (this.$store.state.userData.paymentOptions.length != 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
         appointmentPriceValidation() {
             const a = Number(this.$store.state.userData.appointmentPrice) || this.$store.state.userData.appointmentPrice.slice(0, this.$store.state.userData.appointmentPrice.indexOf(','));
 
             if(a >= 30 && a <= 350) {
                 return true;
             } else {
-                console.log('false');
                 return false;
             }
         },
@@ -221,6 +221,10 @@ export default {
 </script>
 
 <style>
+    .form-label-second-page {
+        margin: 0.7em 0;
+    }
+    
     .arrow-icon {
         max-width: 30px;
     }

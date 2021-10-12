@@ -1,5 +1,5 @@
 <template>
-<root>
+<div>
     <!-- home-icon's container -->
     <div class="container-xl py-4 d-flex justify-content-center">
         <router-link to="/">
@@ -20,7 +20,7 @@
               <input type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameInputValidation}" v-model="$store.state.userData.name" @input="inputNameValidation">
 
               <!-- pt-br: showInputErrors se torna true quando o usuário clica em próximo. Dessa forma, os spans de erros não aparecem logo de cara. -->
-              <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter mais que 3 caracteres.</div>
+              <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter entre 3 e 48 caracteres.</div>
             </div>
 
             <!-- cpf input tags -->
@@ -28,7 +28,7 @@
               <label for="cpfInput" class="form-label">CPF*</label>
 
               <input type="text" class="form-control form-control-sm w-75"
-              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfInputValidation }" @keydown="acceptOnlyNumbersCpf($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
+              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfInputValidation }" @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
               <!-- used keydown event above because I will force the input accept only numbers based on ASCII key's numbers -->
 
               <!-- Essa logica se perdura por boa parte dos inputs -->
@@ -42,7 +42,7 @@
               <div class="mb-2 col">
                 <label for="phoneNumberInput" class="form-label">Número de telefone*</label>
 
-                <input type="text" class="form-control form-control-sm" id="phoneNumberInput" placeholder="(00) 0 0000-0000" v-model="$store.state.userData.phoneNumber" maxlength="11" v-bind:class="{ correctInput : phoneNumberValidation }" @keydown="acceptOnlyNumbersPhoneNumber($event)" @focus="removeFormatationPhoneNumber" @blur="transformPhoneNumberData">
+                <input type="text" class="form-control form-control-sm" id="phoneNumberInput" placeholder="Ex: 14995435522" v-model="$store.state.userData.phoneNumber" maxlength="11" v-bind:class="{ correctInput : phoneNumberValidation }" @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationPhoneNumber" @blur="transformPhoneNumberData">
 
                 <div ref="phoneNumberError" class="form-text" v-bind:class="[showInputErrors ? {hidden: phoneNumberValidation} : {hidden: true}]">Seu número deve incluir 11 dígitos.</div>
               </div>
@@ -50,7 +50,7 @@
               <!-- birthDate input tags -->
               <div class="mb-2 col">
                 <label for="birthDateInput" class="form-label">Data de nascimento*</label>
-                <input type="text" class="form-control form-control-sm" placeholder="Ex: 01012003" maxlength="8" v-model="$store.state.userData.birthDate" ref="birthDateInput" v-bind:class="{ correctInput : birthDateValidation }" @keydown="acceptOnlyNumbersBirthDate($event)" @focus="removeFormatationBirthDate" @blur="transformBirthDate">
+                <input type="text" class="form-control form-control-sm" placeholder="Ex: 01012003" maxlength="8" v-model="$store.state.userData.birthDate" ref="birthDateInput" v-bind:class="{ correctInput : birthDateValidation }" @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationBirthDate" @blur="transformBirthDate">
 
                 <div ref="birthDateError" class="form-text" v-bind:class="[showInputErrors ? {hidden: birthDateValidation} : {hidden: true}]">Sua data de nascimento deve conter 8 números.</div>
               </div>
@@ -63,7 +63,7 @@
               <div class="mb-2 col">
                 <label for="stateInput" class="form-label">Estado*</label>
 
-                <select class="form-select form-select-sm" v-model="$store.state.userData.state" id="stateInput">
+                <select class="form-select form-select-sm" v-model="$store.state.userData.state" id="stateInput" v-bind:class="{ correctInput : stateInputValidation }">
                   <option>Paraná</option>
                   <option>Rio Grande do Sul</option>
                   <option>Santa Catarina</option>
@@ -76,7 +76,7 @@
               <div class="mb-2 col">
                 <label for="citiesInput" class="form-label">Cidade*</label>
 
-                <select class="form-select form-select-sm" v-model="$store.state.userData.city" id="citiesInput">
+                <select class="form-select form-select-sm" v-model="$store.state.userData.city" id="citiesInput" v-bind:class="{ correctInput : cityInputValidation }">
                   <option v-for="city in showCities()" v-bind:key="city"> {{ city }}</option>
                 </select>
 
@@ -101,11 +101,11 @@
           <Button class="w-100" @click="checkInputs" button-title="próximo"></Button>
         </div>
         <div class="col page__image-container">
-          <img src="../assets/desktop-pagina-1.png" class="page__image-content" v-bind:title="rfefe">
+          <img src="../assets/desktop-pagina-1.png" class="page__image-content">
         </div>
       </div>
     </div>
-</root>
+</div>
 </template>
 
 <script>
@@ -157,7 +157,6 @@ export default {
 
       const phoneNumber = [...this.$store.state.userData.phoneNumber].map((element, index) => {
         if (index === 0) {
-          console.log('sou index 1');
           return element = '(' + element;
         } else if (index === 1) {
           return element = element + ')';
@@ -186,63 +185,9 @@ export default {
       this.$store.state.userData.birthDate = birthDateFormatted;
     },
 
-    //funcao para que apenas números sejam aceitos.
-    
-    //tentei pensar em criar apenas uma função, que funcionasse para todos os inputs que eu quisesse. Porém, não consegui pensar em uma solução decente. Por isso, criei um método para cada input.
-
-    acceptOnlyNumbersCpf(event) {
-      //the cpf input field ahs type "text", but I just wanna accept numbers, so I limited the ASCII characters ranger allowed.
-
-      //if the the key's keycode is the value of a letter's keycode, returns false.
-      if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
-            if (event.keyCode === 17 && (event.keyCode == 65 || event.keyCode == 97)) return;
-
-              setTimeout(() => {
-                this.$store.state.userData.cpf = this.$store.state.userData.cpf.slice(0, -1);
-              }, 50);
-
-            return false;
-      }
-      //if its a number, returns true;
-      return true;
-    },
-
-    acceptOnlyNumbersPhoneNumber(event) {
-
-      //if the the key's keycode is the value of a letter's keycode, returns false.
-      if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
-            if (event.keyCode === 17 && (event.keyCode == 65 || event.keyCode == 97)) return;
-
-              setTimeout(() => {
-                this.$store.state.userData.phoneNumber = this.$store.state.userData.phoneNumber.slice(0, -1);
-              }, 50);
-
-            return false;
-      }
-      //if its a number, returns true;
-      return true;
-    },
-
-    acceptOnlyNumbersBirthDate(event) {
-
-      //if the the key's keycode is the value of a letter's keycode, returns false.
-      if (event.keyCode > 31 && (event.keyCode < 48 || event.keyCode > 57)) {
-            if (event.keyCode === 17 && (event.keyCode == 65 || event.keyCode == 97)) return;
-
-              setTimeout(() => {
-                this.$store.state.userData.birthDate = this.$store.state.userData.birthDate.slice(0, -1);
-              }, 50);
-
-            return false;
-      }
-      //if its a number, returns true;
-      return true;
-    },
-
     //método para mostrar cidades de acordo ao estado escolhido.
     showCities() {
       if (this.$store.state.userData.state === 'Paraná') {
-        console.log('parana');
         return ['Londrina', 'Maringá'];
       } else if (this.$store.state.userData.state === 'Rio Grande do Sul') {
         return ['Pelotas', 'Porto Alegre'];
@@ -255,10 +200,6 @@ export default {
     checkInputs() {
       if(this.nameInputValidation && this.cpfInputValidation && this.phoneNumberValidation && this.birthDateValidation && this.stateInputValidation && this.cityInputValidation) {
 
-        this.transformNameData();
-        this.transformCpfData();
-        this.transformPhoneNumberData();
-        this.transformBirthDate();
         this.$router.push({ name: 'SecondPage' });
       } else {
         this.showInputErrors = true;
@@ -303,7 +244,14 @@ export default {
       }
 
       return;
-    }
+    },
+    acceptOnlyNumbers(e) {
+        const charCode = (typeof e.which == "undefined") ? e.keyCode : e.which;
+        const charStr = String.fromCharCode(charCode);
+
+        if (!charStr.match(/^(0|[1-9][0-9]*|[a-i]|[`]|[\b]|[\t])$/))
+         e.preventDefault();
+    },
   },
   computed: {
     //computed properties que indicam se os inputs estão válidos ou não. E são nessas propriedades que as classes, que indicam se um input está correto ou não, se baseiam.
