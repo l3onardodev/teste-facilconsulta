@@ -22,13 +22,8 @@
                     <div class="mb-2 col">
                         <label for="phoneNumberInput" class="form-label form-label-second-page">Especialidade principal*</label>
                         <select class="form-select form-select-sm" v-model="$store.state.userData.mainExpertise" v-bind:class="{ correctInput : mainExpertiseValidation }">
-                        <option selected disabled>Selecione</option>
-                        <option value="Cardiologia">Cardiologia</option>
-                        <option value="Dermatologia">Dermatologia</option>
-                        <option value="Neurologia">Neurologia</option>
-                        <option value="Oftalmologia">Oftalmologia</option>
-                        <option value="Psiquiatria">Psiquiatria</option>
-                        <option value="Urologia">Urologia</option>
+                            <option selected disabled>Selecione</option>
+                            <option v-for="especialidade in listagem.especialidades" :value="especialidade" :key="especialidade.id">{{ especialidade.nome }}</option>
                         </select>
 
                         <div class="form-text text-danger" v-bind:class="[showInputErrors ? {hidden: mainExpertiseValidation} : {hidden: true}]">Você deve escolher uma opção de especialidade principal.</div>
@@ -142,9 +137,26 @@ export default {
         return {
             paymentSubdivision: false,
             showInputErrors: false,
+            listagem: {
+                especialidades: []
+            }
         }
     },
+    created () {
+        this.fetchEspecialidades();
+    },
     methods: {
+        async fetchEspecialidades() {
+            try {
+                const res = await fetch('https://api-teste-front-end-fc.herokuapp.com/especialidades');
+
+                if (res.status === 200) {
+                    this.listagem.especialidades = await res.json();
+                }
+            } catch (err) {
+                return console.error(err);
+            }
+        },
         //transforma o preço que o usuário coloca. (ex: usuário digita 30, isso transforma para: 30,00);
         transformAppointmentPriceInput() {
             if (this.$store.state.userData.appointmentPrice.includes(',') || this.$store.state.userData.appointmentPrice === '') return

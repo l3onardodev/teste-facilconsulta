@@ -17,7 +17,7 @@
 
               <!-- name input tags -->
               <label for="nameInput" class="form-label">Nome completo*</label>
-              <input type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameInputValidation}" v-model="$store.state.userData.name" @input="inputNameValidation">
+              <input name="name-input" type="text" class="form-control form-control-sm" placeholder="Digite o nome completo" v-bind:class="{correctInput: nameInputValidation}" v-model="$store.state.userData.name" @input="inputNameValidation">
 
               <!-- pt-br: showInputErrors se torna true quando o usuário clica em próximo. Dessa forma, os spans de erros não aparecem logo de cara. -->
               <div ref="nameError" class="form-text" v-bind:class="[showInputErrors ? {hidden: nameInputValidation} : {hidden: true}]">Seu nome deve conter entre 3 e 48 caracteres.</div>
@@ -28,11 +28,13 @@
               <label for="cpfInput" class="form-label">CPF*</label>
 
               <input type="text" class="form-control form-control-sm w-75"
-              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfInputValidation }" @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
+              placeholder="Digite um CPF." maxlength="11" v-model="$store.state.userData.cpf" v-bind:class="{ correctInput: cpfInputValidation && cpfAPIValid }" @keydown="acceptOnlyNumbers($event)" @focus="removeFormatationCpf" @blur="transformCpfData">
               <!-- used keydown event above because I will force the input accept only numbers based on ASCII key's numbers -->
 
               <!-- Essa logica se perdura por boa parte dos inputs -->
-              <div ref="cpfError" class="form-text" v-bind:class="[showInputErrors ? {hidden: cpfInputValidation} : {hidden: true}]">O cpf deve conter 11 números.</div>
+              <div ref="cpfError" class="form-text" v-bind:class="[showInputErrors ? {hidden: cpfInputValidation && cpfAPIValid} : {hidden: true}]">
+                  <p v-text="invalidMessage.cpf" />
+              </div>
             </div>
             
             <!-- tag container que contém os inputs do phoneNumber e birthDate. Os criei para ajudar no mediaqueries. -->
@@ -64,9 +66,7 @@
                 <label for="stateInput" class="form-label">Estado*</label>
 
                 <select class="form-select form-select-sm" v-model="$store.state.userData.state" id="stateInput" v-bind:class="{ correctInput : stateInputValidation }">
-                  <option>Paraná</option>
-                  <option>Rio Grande do Sul</option>
-                  <option>Santa Catarina</option>
+                  <option v-for="estado in listagem.estados" :key="estado.id" :value="estado">{{ estado.nome }}</option>
                 </select>
 
                 <div class="form-text text-danger" v-bind:class="[showInputErrors ? {hidden: stateInputValidation} : {hidden: true}]">Você deve escolhar uma opção de estado.</div>
@@ -77,7 +77,7 @@
                 <label for="citiesInput" class="form-label">Cidade*</label>
 
                 <select class="form-select form-select-sm" v-model="$store.state.userData.city" id="citiesInput" v-bind:class="{ correctInput : cityInputValidation }">
-                  <option v-for="city in showCities()" v-bind:key="city"> {{ city }}</option>
+                  <option v-for="city in listagem.cidades" :key="city.id"> {{ city.nome }}</option>
                 </select>
 
                 <div class="form-text" v-bind:class="[showInputErrors ? {hidden: cityInputValidation} : {hidden: true}]">Você deve escolher uma opção de cidade.</div>
@@ -98,7 +98,7 @@
           </div>
 
           <!-- confirm button -->
-          <Button class="w-100" @click="checkInputs" button-title="próximo"></Button>
+          <Button class="w-100" @click="checkInputs" button-title="leonardo"></Button>
         </div>
         <div class="col page__image-container">
           <img src="../assets/desktop-pagina-1.png" class="page__image-content">
@@ -120,6 +120,26 @@ export default {
   data() {
     return {
       showInputErrors: false,
+      cpfAPIValid: true,
+      invalidMessage: {
+        cpf: 'O cpf deve conter 11 dígitos.'
+      },
+      listagem: {
+          estados: [],
+          cidades: [],
+      }
+    }
+  },
+  async created() {
+    try {
+        const res = await fetch('https://api-teste-front-end-fc.herokuapp.com/estados?_embed=cidades');
+        
+        if (res.status === 200) {
+            this.listagem.estados = await res.json();
+            console.log(this.listagem.estados)
+        }
+    } catch (err) {
+        return console.error(err);
     }
   },
   methods: {
@@ -302,6 +322,40 @@ export default {
       } else {
         return false;
       }
+    }
+  },
+  watch: {
+    "$store.state.userData.state": async function(estado) {
+        if (!estado) return;
+
+        try {
+            const res = await fetch(`https://api-teste-front-end-fc.herokuapp.com/cidades?estadoId=${estado.id}`);
+            
+            if (res.status === 200) {
+                this.listagem.cidades = await res.json();
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    },
+    "$store.state.userData.cpf": async function(newValue) {
+        if (!newValue) return;
+        const cpf = String(newValue);
+
+        if (cpf.length === 11) {
+            try {
+                const res = await(await fetch(`https://api-teste-front-end-fc.herokuapp.com/profissionais?cpf=${this.$store.state.userData.cpf}`)).json();
+
+                if (res?.length > 0) {
+                    this.invalidMessage.cpf = "Esse CPF já está cadastrado em nossa base de dados."
+                    return this.cpfAPIValid = false;
+                }
+                this.invalidMessage.cpf = "O cpf deve conter 11 dígitos."
+                return this.cpfAPIValid = true;
+            } catch (err) {
+                return console.error(err);
+            }
+        }
     }
   }
 }
